@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+exec 2>&1
+
+#IFS = newline
+IFS=$'\n'  
+
+echo "Unmounting NFS filesystem mount point before stopping service" 
+for mntpt in  $(cat /proc/mounts | grep " nfs[^d] "); do
+	#umount every mounted point
+	umount -f $( echo $mntpt | cut -d " " -f 2)  
+done
+
+unset IFS
+
+/usr/bin/umount -l /proc/fs/nfsd
+/usr/bin/umount -l /var/lib/nfs/rpc_pipefs
+/usr/bin/rpc.nfsd -- 0
+/usr/bin/exportfs -a

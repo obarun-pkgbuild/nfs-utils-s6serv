@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+exec 2>&1
+if [[ ! -h /run/boot/service/rpcbind ]]; then
+	ln -s /etc/sv/rpcbind /var/service/
+	echo "starting rpcbind"
+	sleep 3
+fi
+if [[ ! -h /run/boot/service/rpc.statd ]]; then
+	ln -s /etc/sv/rpc.statd /var/service/
+	echo "starting statd"
+	sleep 3
+fi
+
+/usr/lib/nfs-utils/nfs-utils_env.sh
+
+source /run/sysconfig/nfs-utils
+
+echo "Loading modules"
+/usr/bin/modprobe sunrpc
+/usr/bin/modprobe nfs
+/usr/bin/modprobe nfsd
+
+echo "Mounting pipefs filesystem"
+/usr/bin/mount -t rpc_pipefs rpc_pipefs /var/lib/nfs/rpc_pipefs 
+
+echo "Mounting NFS filesystem"
+/usr/bin/mount -t nfsd nfsd /proc/fs/nfsd 
+
+echo "Re-export all directories in /etc/exports"
+/usr/bin/exportfs -ra > /dev/null
+
+echo "start some nfsd threads"
+rpc.nfsd -- ${PROCESSES:=4}
+
+echo "Start the rpc.mountd daemon"
+exec /usr/bin/rpc.mountd --foreground
+
