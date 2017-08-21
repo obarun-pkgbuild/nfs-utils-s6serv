@@ -1,15 +1,15 @@
 #!/usr/bin/bash
 exec 2>&1
-if [[ ! -h /run/boot/service/rpcbind ]]; then
-	ln -s /etc/sv/rpcbind /var/service/
-	echo "starting rpcbind"
-	sleep 3
-fi
-if [[ ! -h /run/boot/service/rpc.statd ]]; then
-	ln -s /etc/sv/rpc.statd /var/service/
-	echo "starting statd"
-	sleep 3
-fi
+#if [[ ! -h /run/boot/service/rpcbind ]]; then
+#	ln -s /etc/sv/rpcbind /var/service/
+#	echo "starting rpcbind"
+#	sleep 3
+#fi
+#if [[ ! -h /run/boot/service/rpc.statd ]]; then
+#	ln -s /etc/sv/rpc.statd /var/service/
+#	echo "starting statd"
+#	sleep 3
+#fi
 
 /usr/lib/nfs-utils/nfs-utils_env.sh
 
